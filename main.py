@@ -5,10 +5,13 @@ from sqlalchemy.orm import Session
 
 import crud, models, schemas
 
-from database import SessionLocal, engine
+from database import SessionLocal, engine, Base
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
+
+# to deop the tables
+# Base.metadata.drop_all(engine)
 
 # Dependency
 def get_db():
@@ -38,4 +41,6 @@ def read_balance(balance_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Balance not found")
     return db_balance
 
-
+@app.put("/balance/", response_model=schemas.Balance)
+async def update_balance(new_balance: schemas.Balance, db: Session = Depends(get_db)):
+    return crud.update_balance(db=db, new_balance=new_balance)
